@@ -1,0 +1,39 @@
+#payment-box {
+    padding: 30px;
+}
+
+#payment-box .pay-head {
+    padding: 25px 0;
+    text-align: center;
+}
+
+#payment-box .pay-head i,
+#payment-box .pay-head h4 {
+    color: green;
+    margin-bottom: 10px;
+}
+
+#payment-box .error i,
+#payment-box .error h4 {
+    color: red;
+    margin-bottom: 10px;
+}
+
+#payment-box .btn-main {
+    background-color: #37597d;
+    color: #fff;
+    text-transform: uppercase;
+    width: auto;
+    margin-right: 5px;
+    font-size: 0.85rem;
+}
+
+#payment-box .list-group {
+    margin-bottom: 30px;
+}
+
+#payment-box .list-group-item {
+    border: none;
+    padding: 5px 15px;
+}
+.d-none1{display: none;}

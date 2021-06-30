@@ -1,0 +1,9 @@
+.dropdown-menu {
+    min-width: 8rem;
+}
+
+ul.dropdown-menu .dropdown.active .active1 {
+    color: #fff;
+    text-decoration: none;
+    background-color: var(--theme-color);
+}

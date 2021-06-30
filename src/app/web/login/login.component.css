@@ -1,0 +1,51 @@
+.form-group,
+.form-control {
+    position: relative;
+}
+
+.login_o {
+    background-color: #fff!important;
+}
+
+.invalid-feedback {
+    position: absolute;
+    margin-top: 0px;
+}
+
+.eye-icon-pos {
+    position: absolute;
+    right: 12px;
+    top: 12px;
+}
+
+.gen-pass {
+    position: absolute;
+    top: 290px;
+    border: solid 1px #aaa;
+    border-radius: 5px;
+    box-shadow: 0px 0px 4px #aaa;
+    padding: 10px;
+    background-color: #fff;
+    width: 76%;
+    left: 46px;
+}
+
+.gen-pass .btn {
+    background: #ff850c;
+    color: #fff;
+    border: 0;
+    font-size: 0.85rem;
+}
+
+.form-group .input-group:not(.has-validation)>.form-control:not(:last-child) {
+    border-top-right-radius: .25rem !important;
+    border-bottom-right-radius: .25rem !important;
+}
+
+.btn-light {
+    position: absolute;
+    top: 5px;
+    right: 3px;
+    border: none;
+    background: transparent;
+}

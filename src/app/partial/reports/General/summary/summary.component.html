@@ -1,0 +1,180 @@
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-2 col-sm-3 p-0">
+            <div class="left-form-container">
+                <form [formGroup]="summaryFrom" (ngSubmit)="onSubmit()">
+                    <div class="form-group">
+                        <label for="ddlVehicleNo" class="form-label">Vehicle <span class="text-danger">*</span></label>
+                        <!-- <select class="form-control" formControlName="VehicleNumber" [ngClass]="{ 'is-invalid': submitted && f.VehicleNumber.errors }">
+                            <option  value="" [selected]="select" disabled="disabled">Select Vehicle</option>
+                            <option *ngIf="emptyData">No data</option>
+                            <option *ngFor="let vehicleData of vechileList" value="{{vehicleData?.vehicleNo}}">
+                                {{vehicleData?.vehicleNo}}</option>
+                        </select> -->
+                        <ngx-select [items]="vechileList" optionValueField="vehicleNo" placeholder="Search Vehicle" optionValueField="vehicleNo" formControlName="VehicleNumber" [ngClass]="{ 'is-invalid': submitted && f.VehicleNumber.errors }"></ngx-select>
+                        <div *ngIf="submitted && f.VehicleNumber.errors" class="invalid-feedback">
+                            <div *ngIf="f.VehicleNumber.errors.required">Vehicle Number is required</div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="txtFromDate">From Date</label>
+                        <div class='input-group date'>
+                            <input [owlDateTime]="dt1" [owlDateTimeTrigger]="dt1" class="form-control input-group-addon" formControlName="fromDate" placeholder="From Date" [max]="maxDateOut" />
+                            <owl-date-time #dt1></owl-date-time>
+                            <!-- <input type='datetime-local'  [max]="fromDate1()" [value]="fromDate()" class="form-control input-group-addon"
+                                formControlName="fromDate" placeholder="From Date" /> -->
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="txtToDate">To Date</label>
+                        <div class='input-group date'>
+                            <input [owlDateTime]="dt2" [owlDateTimeTrigger]="dt2" class="form-control input-group-addon" formControlName="toDate" placeholder="From Date" [max]="maxDateOut" />
+                            <owl-date-time #dt2></owl-date-time>
+                            <!-- <input type='datetime-local' [min]="this.summaryFrom.value.fromDate" [max]="toDate()" class="form-control input-group-addon" formControlName="toDate"
+                                placeholder="To Date" /> -->
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-sm btn-outline-success mr-2 w100px">Search</button>
+
+                    <button type="button" (click)="clearForm()" class="btn btn-sm btn-outline-secondary w100px">Refresh</button>
+
+                </form>
+            </div>
+        </div>
+        <div class="col-lg-10 col-sm-9 border-left" id="pdfDownload">
+            <div *ngIf="hideReport">
+                <div class="report-header">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <h6 class="my-2 font-weight-bold"><img src="assets/img/dumper.svg" class="mr-2">Summary Report
+                                <small class="ml-3">[{{date | date:'dd-MM-yyyy hh:mm:ss a'}}]</small>
+                            </h6>
+
+                        </div>
+                        <div class="col-sm-6 text-right d-none-print">
+                            <div class="dropdown">
+                                <button class="btn btn-light dropdown-toggle btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Download
+                                </button>
+                                <button class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
+                                    <a class="dropdown-item text-primary" (click)="downLoadExcel()"><i
+                                            class="fas fa-file-excel mr-2"></i>
+                                        Excel</a>
+                                    <a class="dropdown-item text-success" (click)="pdfDownload()"><i
+                                            class="fas fa-file-pdf mr-2"></i>
+                                        PDF</a>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="report-content">
+                    <div class="row">
+                        <div class="col-sm-3 mb-3">
+                            <div class="card shadow-none border">
+                                <div class="card-header font-weight-bold"><i class="fas fa-calendar-alt mr-2"></i> Date range
+                                </div>
+                                <div class="card-body pt-1">
+                                    <h5 class="mb-1"> {{summaryReportData?.fromDate | date : "dd-MM-y h:mm:a"}}</h5>
+                                    <h5 class="mb-1"> {{summaryReportData?.toDate | date :'dd-MM-yyyy h:mm:a '}}</h5>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-3 mb-3">
+                            <div class="card shadow-none border h-100">
+                                <div class="card-header font-weight-bold"><i class="fas fa-car mr-2"></i> Vehicle</div>
+                                <div class="card-body pt-1">
+                                    <h5 class="mb-1">{{summaryReportData?.VehicleNumber}}
+                                        <small>({{summaryReportData?.vehTypeName}})</small>
+                                    </h5>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-3 mb-3">
+                            <div class="card shadow-none border h-100">
+                                <div class="card-header font-weight-bold"><i class="fas fa-user-alt mr-2"></i> Driver
+                                </div>
+                                <div class="card-body pt-1">
+                                    <h5 class="mb-1">{{summaryReportData?.driverName | titlecase }}
+                                        <small>({{summaryReportData?.driverMobileNo}})</small>
+                                    </h5>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-3 mb-3">
+                            <div class="card shadow-none border h-100">
+                                <div class="card-header font-weight-bold"><i class="fas fa-play-circle mr-2"></i> Running Time
+                                </div>
+                                <div class="card-body pt-1">
+                                    <h5 class="mb-1">{{summaryReportData?.runningTime *1000 *60 | date:'HH:mm':'UTC'}} HH:mm</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-3 mb-3">
+                            <div class="card shadow-none border h-100">
+                                <div class="card-header font-weight-bold"><i class="fas fa-pause-circle mr-2"></i> Stoppage Time
+                                </div>
+                                <div class="card-body pt-1">
+                                    <h5 class="mb-1">{{summaryReportData?.stoppageTime *1000 *60 | date:'HH:mm':'UTC'}} <small>HH:mm</small></h5>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-3 mb-3">
+                            <div class="card shadow-none border h-100">
+                                <div class="card-header font-weight-bold"><i class="fas fa-stopwatch mr-2"></i> Idle Time
+                                </div>
+                                <div class="card-body pt-1">
+                                    <h5 class="mb-1">{{summaryReportData?.idleTime *1000 *60 | date:'HH:mm':'UTC'}} <small>HH:mm</small></h5>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-3 mb-3">
+                            <div class="card shadow-none border h-100">
+                                <div class="card-header font-weight-bold"><i class="fas fa-tachometer-alt mr-2"></i> Max Speed
+                                </div>
+                                <div class="card-body pt-1">
+                                    <h5 class="mb-1">{{summaryReportData?.maxSpeed }} <small>Km/h</small></h5>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-3 mb-3">
+                            <div class="card shadow-none border h-100">
+                                <div class="card-header font-weight-bold"><i class="fas fa-clock mr-2"></i> Travelled Distance
+                                </div>
+                                <div class="card-body pt-1">
+                                    <h5 class="mb-1">{{summaryReportData?.travelledDistance | number : '1.2-2'}} <small>Km</small></h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-6 mb-3">
+                            <div class="card shadow-none border h-100">
+                                <div class="card-header font-weight-bold"><i class="fas fa-map-marker-alt mr-2 text-success"></i> Start location</div>
+                                <div class="card-body pt-1">
+                                    <ng-container><i class="fa fa-spinner fa-spin" *ngIf="loading"></i></ng-container>
+                                    <h5 class="mb-1">{{addressStart}}</h5>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <div class="card shadow-none border h-100">
+                                <div class="card-header font-weight-bold"><i class="fas fa-map-marker-alt mr-2 text-danger"></i> Last location</div>
+                                <div class="card-body pt-1">
+                                    <ng-container><i class="fa fa-spinner fa-spin" *ngIf="loading"></i></ng-container>
+                                    <h5 class="mb-1">{{addressEnd}}</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

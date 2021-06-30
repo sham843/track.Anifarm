@@ -1,0 +1,8 @@
+.pay_historry{
+    background-color: rgba(112, 169, 233, 0.25);
+    padding: 6px 10px;
+    border-radius: 3px;
+    color: #007bff !important;
+    position: relative;
+    bottom:-25px;
+}

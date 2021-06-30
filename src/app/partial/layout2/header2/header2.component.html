@@ -1,0 +1,113 @@
+<nav class="navbar topHeader navbar-dark navbar-expand-sm fixed-top">
+    <a class="navbar-brand" routerLink="/dashboard"><img alt="mahatrack" height="25" src="assets/img/maha_track_logo2.png"> Track
+    </a>
+    <button class="navbar-toggler" type="button" style="color: rgba(255,255,255,.5); border-color: rgba(255,255,255,.1);" data-toggle="collapse" data-target="#navbarTogglerDemo01" aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a class="nav-link" routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+            </li>
+            <li class="nav-item dropdown" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Map
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" routerLink="map" routerLinkActive="active">Map</a>
+                    <a class="dropdown-item" routerLink="tracking" routerLinkActive="active">Tracking</a>
+                </div>
+            </li>
+            <li class="nav-item dropdown" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Master
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" routerLink="poi" routerLinkActive="active">POI</a>
+                    <!-- <a class="dropdown-item" routerLink="breakDown" routerLinkActive="active">Break
+                        Down</a> -->
+                    <a class="dropdown-item" routerLink="recharge" routerLinkActive="active">Recharge</a>
+                    <a class="dropdown-item" routerLink="paymentHistory" routerLinkActive="active">Payment History</a>
+                </div>
+            </li>
+            <li class="nav-item dropdown" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Reports
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" routerLink="summary" routerLinkActive="active">Summary</a>
+                    <a class="dropdown-item" routerLink="speedRange" routerLinkActive="active">Speed
+                        Range</a>
+                    <a class="dropdown-item" routerLink="trip" routerLinkActive="active">Trip</a>
+                    <a class="dropdown-item" routerLink="address" routerLinkActive="active">Address</a>
+                    <a class="dropdown-item" routerLink="overSpeed" routerLinkActive="active">Overspeed</a>
+                </div>
+            </li>
+            <!-- <li class="nav-item dropdown" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Reports</a>
+                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <li class="dropdown" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                        <a class="dropdown-toggle dropdown-item active1" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">General</a>
+                        <ul class="dropdown-menu subsubmenu" aria-labelledby="navbarDropdown">
+                            <a class="dropdown-item" routerLink="summary" routerLinkActive="active">Summary</a>
+                            <a class="dropdown-item" routerLink="speedRange" routerLinkActive="active">Speed
+                                Range</a>
+                            <a class="dropdown-item" routerLink="trip" routerLinkActive="active">Trip</a>
+                            <a class="dropdown-item" routerLink="address" routerLinkActive="active">Address</a>
+                            <a class="dropdown-item" routerLink="overSpeed" routerLinkActive="active">Overspeed</a>
+                        </ul>
+                    </li>
+                    <li class="dropdown" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                        <a class="dropdown-toggle dropdown-item active1" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Mining</a>
+                        <ul class="dropdown-menu subsubmenu" aria-labelledby="navbarDropdown">
+                            <a class="dropdown-item" routerLink="eTP" routerLinkActive="active">eTP</a>
+                            <a class="dropdown-item" routerLink="materialOrder" routerLinkActive="active">Material
+                                Order</a>
+                        </ul>
+                    </li>
+                </ul>
+            </li> -->
+            <li class="nav-item dropdown">
+
+                <a class="nav-link dropdown-toggle web-view  hide-after" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                </a>
+                <a class="nav-link dropdown-toggle  mob-view" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                   Profile
+                </a>
+                <div class="dropdown-menu dropdown-menu-custom" aria-labelledby="navbarDropdown">
+                    <div class="list-group-item" style="border-top: 1px solid rgba(0,0,0,.125);">
+                        <h6 class="card-title ng-binding" ng-bind="user">{{getUserName}}</h6>
+                        <p class="card-subtitle mb-2 mt-1 text-muted ng-binding" ng-bind="userMobile">{{getMobileNo}}</p>
+                    </div>
+                    <a class="dropdown-item" routerLink="changePassword" routerLinkActive="active"> <i class="fas fa-key fa-rotate-270 mr-2"></i> Change Password</a>
+                    <a class="dropdown-item" data-toggle="modal" data-target="#exampleModal1"> <i class="fas fa-power-off text-danger mr-2"></i> Logout</a>
+                </div>
+            </li>
+
+        </ul>
+    </div>
+</nav>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal1" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title" id="exampleModalLabel1">Logout </h6>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+            </div>
+            <div class="modal-body text-center">
+                <i class="fas fa-question-circle fa-4x text-danger"></i>
+                <h6 class="mt-4"> Are you sure you want to logout?</h6>
+            </div>
+            <div class="text-center mb-3">
+                <button type="button" class="btn btn-outline-secondary btn-sm mr-1" style="width: 100px;" data-dismiss="modal">No</button>
+                <button type="button" class="btn btn-outline-danger btn-sm  ml-1" style="width: 100px;" (click)="logout()" data-dismiss="modal">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>

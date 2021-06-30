@@ -1,0 +1,207 @@
+<agm-map id="googlemaps" [zoom]="zoom" [latitude]='lat' [longitude]='long' [mapTypeId]="this.mapViewType">
+
+    <agm-circle [latitude]="lat" [longitude]="long" [radius]="circleradius" [strokeWeight]="2" [strokeColor]="'#ff0000'"
+        [fillColor]="'red'">
+        <agm-marker [latitude]="lat" [longitude]="long" [markerDraggable]="true" (dragEnd)="markerDragEnd($event)">
+        </agm-marker>
+    </agm-circle>
+
+</agm-map>
+
+<div class="page-wrapper toggled" [class.toggled]="showSidebar">
+    <div id="show-sidebar" class="btn btn-sm btn-dark" (click)="showSidebar=true">
+        <i class="fas fa-bars"></i>
+    </div>
+    <nav id="sidebar" class="sidebar-wrapper">
+        <div class="sidebar-content">
+            <div class="sidebar-brand">
+                <div id="close-sidebar" (click)="showSidebar=false">
+                    <i class="fas fa-arrow-left"></i>
+                </div>
+            </div>
+
+            <form [formGroup]="poiForm" class="vehicle-form" (ngSubmit)="onSubmit()">
+                <!-- <div class="form-group">
+                    <label class="form-label">Search</label>
+                    <input type="text" class="form-control" (keydown.enter)="$event.preventDefault()" placeholder="Search Location" autocorrect="off" autocapitalize="off" spellcheck="off" type="text" #search>
+                  </div> -->
+                <div class="form-group">
+                    <label for="txtTitle" class="form-label">POI Title <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" autocomplete="off" [value]="title" formControlName="title"
+                        placeholder="Enter Title" id=txtTitle [readonly]="viewType"
+                        [ngClass]="{ 'is-invalid': submitted && f.title.errors }">
+                    <div *ngIf="submitted && f.title.errors" class="invalid-feedback">
+                        <div *ngIf="f.title.errors.required">Title is required</div>
+                        <!-- <div *ngIf="f.title.errors.maxlength">Title maxlength is 45 characters  </div> -->
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="txtRadius" class="form-label">Radius (meter) <span class="text-danger">*</span></label>
+                    <input type="number" formControlName="radius" [readonly]="viewType" class="form-control" min="0"
+                        max="9999" [value]="radius" placeholder="Enter radius in meter" id=txtRadius
+                        [ngClass]="{ 'is-invalid': submitted && f.radius.errors }">
+                    <div *ngIf="submitted && f.radius.errors" class="invalid-feedback">
+                        <div *ngIf="f.radius.errors.required">Radius is required</div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="ddlVehicleNo" class="form-label">Vehicle<span class="text-danger">*</span></label>
+                    <!-- <select multiple class="form-control" id="ddlVehicleNo"> -->
+                    <select [(ngModel)]="editselOpt" [attr.disabled]="viewType? '' : null" id="placeType" multiple
+                        formControlName="vehicleNo" class="form-control" formControlName="vehicleNo"
+                        [ngClass]="{ 'is-invalid': submitted && f.vehicleNo.errors }">
+                        <!-- <option value="" disabled>Select Vehicle No.</option> -->
+                        <option *ngFor="let dt of VehicleDtArr" [value]="dt.vehicleId" [innerHtml]="dt.vehicleNo">
+                            <!-- {{dt.vehicleNo|uppercase }} -->
+                        </option>
+                        <div *ngIf="submitted && f.vehicleNo.errors" class="invalid-feedback">
+                            <div *ngIf="f.vehicleNo.errors.required">Vehicle No is required</div>
+                        </div>
+                    </select>
+
+                    <div *ngIf="submitted && f.vehicleNo.errors" class="invalid-feedback">
+                        <div *ngIf="f.vehicleNo.errors.required">Vehicle Number is required</div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="ddlVehicleNo" class="form-label">Location</label>
+                    <textarea rows="4" readonly [value]="address" formControlName="address" class="form-control"
+                        placeholder="Address">{{address}}</textarea>
+                </div>
+                <button type="submit" class="btn btn-outline-success mr-2 btn-sm" [disabled]="viewType">Save</button>
+                <!-- <button type="submit" *ngIf="removeBtnFlag" class="btn btn-outline-secondary btn-sm mr-2"
+                    (click)="deletePoiDetails()">Remove</button> -->
+                <button type="button" class="btn btn-outline-secondary mr-2 btn-sm"
+                    (click)="clearForm()">Refresh</button>
+                <button type="button" class="btn btn-outline-success btn-sm float-right" data-toggle="modal"
+                    data-target="#poiDetails" data-toggle="modal" data-target="#PoiDetails">
+                    POI Details
+                </button>
+            </form>
+        </div>
+    </nav>
+    <div class="searchbox">
+        <div class="form-group">
+            <input type="text" class="form-control" (keydown.enter)="$event.preventDefault()"
+                placeholder="Search Location" autocorrect="off" autocapitalize="off" spellcheck="off" type="text"
+                #search>
+        </div>
+    </div>
+
+    <div class="markers">
+        <button class="btn btn-light" type="button" data-toggle="collapse" data-target="#cardMapType"
+            (click)="toggleClass()" aria-expanded="false" aria-controls="cardMapType">
+            <ng-container *ngIf="mapViewType == 'roadmap' || mapViewType == 'terrain'">
+                Map
+            </ng-container>
+            <ng-container *ngIf="mapViewType == 'satellite'  || mapViewType == 'hybrid'">
+                Satelite
+            </ng-container>
+        </button>
+
+    </div>
+    <div class="collapse multi-collapse" id="cardMapType">
+        <div class="card card-body">
+            <div>
+                <label (click)="changeMap('map')">Map</label>
+            </div>
+            <div>
+                <label (click)="changeMap('satellite')">Satelite</label>
+            </div>
+            <div>
+                <label (change)="checkValue(isChecked?'terrain':'labels', this.mapViewType)"><input type="checkbox"
+                        [(ngModel)]="isChecked"> Labels</label>
+            </div>
+
+        </div>
+    </div>
+    <button type="button" id="btnPoiDetail" #PoiDetailModelOpen data-toggle="modal" data-target="#poiDetails"
+        data-toggle="modal" data-target="#PoiDetails" style="display: none;"></button>
+
+    <div class="modal fade" id="PoiDetails" tabindex="-1" aria-labelledby="PoiDetailsLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title" id="PoiDetailsLabel">POI Details</h6>
+                    <button type="button" #close class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="vehicle-details">
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Sr. No.</th>
+                                        <th>Title</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let VDetailsData of VehicleDetailsData | 
+                                paginate: { itemsPerPage: 10, currentPage: p }; let i = index"
+                                        [class.active]="VehicleDetailsData.indexOf(VDetailsData) == HighlightRow">
+                                        <td>{{VehicleDetailsData.indexOf(VDetailsData) + 1}}</td>
+                                        <td>{{VDetailsData?.title}}</td>
+                                        <td class="last-child"> <button type="button" class="btn btn-outline-success  btn-sm "
+                                                (click)="poiDetailsViewEditDel(VehicleDetailsData.indexOf(VDetailsData), 'edit')"><i
+                                                    class="fas fa-pencil-alt"></i></button>
+                                            <button type="button" class="btn btn-outline-success btn-sm ml-1 mr-1"
+                                                (click)="poiDetailsViewEditDel(VehicleDetailsData.indexOf(VDetailsData), 'view')"><i
+                                                    class="fas fa-eye"></i></button>
+                                            <button type="button" data-dismiss="modal" aria-label="Close"
+                                                (click)="poiDetailsDelete(VehicleDetailsData.indexOf(VDetailsData), 'del')"
+                                                class="btn btn-outline-danger btn-sm "><i
+                                                    class="fas fa-trash"></i></button>
+                                            <!-- <button type="button" data-dismiss="modal" aria-label="Close" class="btn btn-outline-danger btn-sm "
+                                            (click)="poiDetailsViewEditDel(VehicleDetailsData.indexOf(VDetailsData), 'del')"><i
+                                                class="fas fa-trash"></i></button> -->
+                                        </td>
+                                    </tr>
+                                    <tr *ngIf="VehicleDetailsData == null || VehicleDetailsData.length == 0">
+                                        <td colspan="3" class="text-danger text-center">No POI Details</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="text-right" *ngIf="VehicleDetailsData != null">
+                            <pagination-controls (pageChange)="p = $event" previousLabel="" nextLabel="">
+                            </pagination-controls>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<button type="button" class="btn btn-primary modal-open" #deleteConfirmOpen data-target="#deleteConfirm"
+    data-toggle="modal" style="display: none;">
+</button>
+<div class="modal fade" id="deleteConfirm" data-backdrop="static" data-keyboard="false" tabindex="-1"
+    aria-labelledby="deleteConfirmLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title" id="deleteConfirmLabel">Delete</h6>
+                <button type="button" class="close" (click)="canceldelModal()" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <i class="far fa-times-circle  fa-4x text-danger"></i>
+                <p class="mt-2 mb-0">Are you sure you want to delete this record?
+                </p>
+            </div>
+            <div class="text-center mb-3">
+                <button type="button" class="btn btn-outline-secondary btn-sm mr-1" style="width: 100px;"
+                    data-dismiss="modal" aria-label="Close" (click)="canceldelModal()">Cancel</button>
+                <button type="button" data-dismiss="modal" aria-label="Close" class="btn btn-outline-danger btn-sm"
+                    style="width: 100px;" (click)="deletePOIdetails()">Delete</button>
+                <!-- (click)="poiDetailsViewEditDel(VehicleDetailsData.indexOf(VDetailsData), 'del')" -->
+            </div>
+        </div>
+    </div>
+</div>

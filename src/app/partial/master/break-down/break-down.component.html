@@ -1,0 +1,44 @@
+<div class="container-fluid mt-5">
+    <div class="row">
+        <div class="col-sm-4 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h6>Break Down Details</h6>
+                </div>
+                <div class="card-body">
+                    <form [formGroup]="breakDownForm" (ngSubmit)="onSubmit()">
+                        <div class="form-group">
+                            <label for="ddlVehicle">Vehicle <span class="text-center text-danger">*</span></label>
+                            <ngx-select [items]="vechileList" optionValueField="vehicleNo" placeholder="Search Vehicle" formControlName="vehicleId" [ngClass]="{ 'is-invalid': submitted && f.vehicleId.errors }"></ngx-select>
+                            <div *ngIf="submitted && f.vehicleId.errors" class="invalid-feedback">
+                                <div *ngIf="f.vehicleId.errors.required">Vehicle Number is required</div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="txtInvoiceNo"> eTP Number<span class="text-center text-danger">*</span></label>
+                            <input type="text" autocomplete="off" class="form-control" placeholder="eTP Number" formControlName="invoiceNo" [ngClass]="{ 'is-invalid': submitted && f.invoiceNo.errors }">
+                            <div *ngIf="submitted && f.invoiceNo.errors" class="invalid-feedback">
+                                <div *ngIf="f.invoiceNo.errors.required"> eTP Number is require</div>
+                                <!-- <div *ngIf="f.invoiceNo.errors.minlength">eTP No. min length is 10</div>
+                                <div *ngIf="f.invoiceNo.errors.maxlength">eTP No. max length is 10</div> -->
+                                <div *ngIf="f.invoiceNo.errors.pattern">Invalid eTP number</div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="rblBreakdownType" class="w-100">Option</label>
+                            <div class="change-radio-css">
+                                <label class="form-check-label ml-4" *ngFor="let vechStatus of VStatus">
+                                <input type="radio" class="form-check-input" value="{{vechStatus.shortName}}"
+                                    formControlName="breakDownStatus">{{vechStatus.fullName}}
+                            </label>
+                            </div>
+
+                        </div>
+                        <button type="submit" class="btn btn-outline-success btn-sm mr-2 w100px">Submit</button>
+                        <button type="button" (click)="clearForm()" class="btn btn-outline-secondary btn-sm w100px">Refresh</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

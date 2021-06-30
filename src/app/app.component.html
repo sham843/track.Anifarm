@@ -1,0 +1,53 @@
+<ngx-spinner bdColor="rgba(0, 0, 0, 0.8)" size="medium" color="#fff" type="timer" [fullScreen]="true">
+    <p style="color: white"> Loading... </p>
+</ngx-spinner>
+
+
+
+<div id="main">
+    <router-outlet></router-outlet>
+</div>
+
+
+<button type="button" #openModal class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" style="display: none;">
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <button type="button" class="close" data-dismiss="modal" #close aria-label="Close" style="display: none;"></button>
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-body p-0 text-center">
+                <img src="assets/img/error.jpg" class="img-fluid">
+                <h3 class="text-danger pb-3" *ngIf="!isConnected">{{status}}</h3>
+                <h3 class="text-success  pb-3" *ngIf="isConnected">{{status}}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal tokenRefresh  -->
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#tokenRefresh" style="display: none;"></button>
+<div class="modal fade" id="tokenRefresh" tabindex="-1" role="dialog" aria-labelledby="tokenRefreshLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title" id="tokenRefreshLabel">Refresh Token </h6>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" #tokenRefreshModalClose>
+            <span aria-hidden="true">&times;</span>
+          </button>
+            </div>
+            <div class="modal-body text-center">
+                <i class="fa fa-sync fa-3x text-danger"></i>
+                <h6 class="mt-4">Your Token has been expired.
+                    Press YES to Refresh Token. Press NO to Logout.</h6>
+                <!-- Do you want to add GST in bill? Press OK to add GST, Press Submit to Continue. -->
+            </div>
+            <div class="text-center mb-3">
+                <button type="button" class="btn btn-outline-secondary btn-sm mr-1" style="width: 100px;" (click)="logOut()" >No</button>
+                <button type="button" class="btn btn-outline-danger btn-sm  ml-1" style="width: 100px;" (click)="refreshToken()" data-dismiss="modal">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>

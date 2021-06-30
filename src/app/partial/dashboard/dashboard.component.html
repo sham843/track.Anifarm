@@ -1,0 +1,314 @@
+<div class="container ng-scope">
+    <div class="row mt-4">
+        <div class="col-md-10 mx-auto">
+            <div class="row">
+                <div class="col-lg-8 mb-3">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Fleet status pie chart</h5>
+                        </div>
+                        <div class="card-body" style="height:312px;">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <ng-container><i class="fa fa-spinner fa-spin" *ngIf="loading"></i></ng-container>
+                                    <p *ngIf="piChartMsg" class="text-danger">No Fleet status</p>
+                                    <div id="chartdiv" style="height:272px;margin-top:-15px;"></div>
+
+                                </div>
+                                <div class="col-md-4 d-flex align-items-center">
+                                    <div class="btn-group btn-group-vertical">
+                                        <a class="lead1 mb-3" *ngIf="runningVehicles != 0" (click)="redirectMap('Running')"><i class="fas mr-2  fa-circle"
+                                                style="color:#43a047"></i>Running
+                                            ({{runningVehicles}})</a>
+                                        <a class="lead1 mb-3" *ngIf="offlineVehicles != 0" (click)="redirectMap('Offline')"><i class="fas mr-2  fa-circle"
+                                                style="color:#fb8c00"></i>Offline
+                                            ({{offlineVehicles}})</a>
+                                        <a class="lead1 mb-3" *ngIf="stopVehicles != 0" (click)="redirectMap('Stopped')"><i class="fas mr-2  fa-circle"
+                                                style="color:#e53935"></i>Stopped
+                                            ({{stopVehicles}})</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card" data-toggle="modal" data-target="#eTPDetailsModal">
+                <div class="card-header">
+                    <h5>eTP (<small>active/ ongoing</small>) details</h5>
+                </div>
+                <div class="card-body pt-0" style="cursor: pointer;min-height:287px;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="mb-0">Number of Transport permit generated</p>
+                            <h1 class="mt-2 font-weight-bold ">
+                                <span *ngIf="resInvoiceDetails !=null">
+                                    {{resInvoiceDetails?.length}} </span>
+                                <span *ngIf="resInvoiceDetails == null"> 0 </span>
+                            </h1>
+                        </div>
+                        <img src="assets/img/dashboard/e_tp_details.svg" style="height: 100px;">
+                    </div>
+                    <div style="max-height: 116px; min-width:116px; overflow:auto;" class="mt-5">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Sr No.</th>
+                                    <th scope="col">eTP</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let eTPDetails of resInvoiceDetails; let i = index">
+                                    <th>{{i+1}}</th>
+                                    <td>{{eTPDetails?.invoiceNo}}</td>
+                                </tr>
+                                <tr *ngIf="resInvoiceDetails === null">
+                                    <td colspan="2" class="text-danger text-center">No eTP Details</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div> -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5>Sim renewal reminder</h5>
+                        </div>
+                        <div class="card-body pt-0">
+                            <div class="row">
+                                <div class="col-6 text-center">
+                                    <img src="assets/img/dashboard/due.svg">
+                                    <p class="mb-0">Due</p>
+                                    <h4 style="color: #09b0f7" class="">{{resSimDueAndOverDue?.responseData[0]?.due}}
+                                    </h4>
+                                </div>
+                                <div class="col-6 text-center border-left">
+                                    <img src="assets/img/dashboard/overdue.svg">
+                                    <p class="mb-0">Overdue</p>
+                                    <h4 style="color: #fb634c" class="">
+                                        {{resSimDueAndOverDue?.responseData[0]?.overDue}}</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5>Complaints</h5>
+                        </div>
+                        <div class="card-body pt-0">
+                            <div class="row">
+                                <div class="col-6 text-center">
+                                    <img src="assets/img/dashboard/received_complaints.svg">
+                                    <p class="mb-0">Registered</p>
+                                    <h4 style="color: #57bc57" class="">
+                                        {{resComplaintDetails?.responseData[0]?.received}}</h4>
+                                </div>
+                                <div class="col-6 text-center border-left">
+                                    <img src="assets/img/dashboard/pending_complaints.svg">
+                                    <p class="mb-0">Pending</p>
+                                    <h4 style="color: #fb634c">{{resComplaintDetails?.responseData[0]?.pending}}</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mt-1">
+        <div class="col-md-10 mx-auto">
+            <div class="row">
+                <div class="col-lg-4 col-sm-6 mb-3">
+                    <div class="card" style="background:transparent  linear-gradient(#ffafc9, #f16185); height:160px; display:block;">
+                        <div class="card-body">
+                            <h5 class="mb-1" style="color:#703334">Overspeed</h5>
+                            <h6 class="text-white mb-0" style="height: 30px;">Speed more than set limit</h6>
+                            <div class="d-flex justify-content-between align-items-end">
+                                <div>
+                                    <h2 class="font-weight-bold text-white mb-0">
+                                        <span>{{resVehiclesCountDashboard?.responseData?.overSpeedVehicles}}</span>
+                                    </h2>
+                                    <p class="mb-0 text-white">
+                                        Alerts
+                                    </p>
+                                </div>
+                                <img src="assets/img/dashboard/overspeed.svg" style="height:70px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-sm-6 mb-3">
+                    <div class="card" style="background:transparent linear-gradient(#e0bfff, #b982ff);  height:160px; display:flex;">
+                        <div class="card-body d-flex justify-content-between flex-column">
+                            <h5 class="mb-1" style="color:#a548a2">Fuel drop</h5>
+                            <h6 class="text-white mb-0" style="height: 30px;"></h6>
+                            <div class="d-flex justify-content-between align-items-end">
+                                <div>
+                                    <h2 class="font-weight-bold text-white mb-0">
+                                        <span>{{resVehiclesCountDashboard?.responseData?.fuelDropVehicles}}</span>
+                                    </h2>
+                                    <p class="mb-0 text-white">
+                                        Alerts
+                                    </p>
+                                </div>
+                                <img src="assets/img/dashboard/fuel_drop.svg" style="height:70px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- <div class="col-lg-3 col-sm-6  mb-3">
+            <div class="card" data-toggle="modal" data-target="#breakdownModal" style="cursor: pointer;background:transparent linear-gradient(#9ec9ff, #3466d9);  height:160px; display:block;">
+                <div class="card-body">
+                    <h5 class="mb-1" style="color:#365393">Breakdown</h5>
+                    <h6 class="text-white mb-0" style="height: 30px;">Required additional validity</h6>
+                    <div class="d-flex justify-content-between align-items-end">
+                        <div>
+                            <h2 class="font-weight-bold text-white mb-0">
+                                <span *ngIf="this.resBreakdownReport!= null;">{{resBreakdownReport?.length}}</span>
+                                <span *ngIf="this.resBreakdownReport == null">0</span>
+                            </h2>
+                            <p class="mb-0 text-white">
+                                Vehicles
+                            </p>
+                        </div>
+                        <img src="assets/img/dashboard/breakdown.svg" style="height:70px;">
+                    </div>
+                </div>
+            </div>
+        </div> -->
+
+                <div class="col-lg-4 col-sm-6  mb-3">
+                    <div class="card" style="background:transparent linear-gradient(#fbd36b, #c58e08);  height:160px; display:block;">
+                        <div class="card-body">
+                            <h5 class="mb-1" style="color:#a56b00">POI</h5>
+                            <h6 class="text-white mb-0" style="height: 30px;">In/ Out of prohibited geofence</h6>
+                            <div class="d-flex justify-content-between align-items-end">
+                                <div>
+                                    <h2 class="font-weight-bold text-white mb-0">
+                                        <span>{{resVehiclesCountDashboard?.responseData?.poiVehicles}}</span>
+                                    </h2>
+                                    <p class="mb-0 text-white">
+                                        Alerts
+                                    </p>
+                                </div>
+                                <img src="assets/img/dashboard/pol_alert.svg" style="height:70px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- breakdown modal  -->
+<div class="modal fade" id="breakdownModal">
+    <div class="modal-dialog modal-dialog-centered  modal-lg" style="max-width: 85% !important;">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h6 class="modal-title">Breakdown details</h6>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Sr No.</th>
+                                <th>Vehicle no.</th>
+                                <th>eTP</th>
+                                <th>Quantity</th>
+                                <th>Source</th>
+                                <th>Destination</th>
+                                <th>From</th>
+                                <th>To</th>
+                                <th>Breakdown date</th>
+                                <th>Restart date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let breakDownData of resBreakdownReport">
+                                <td>{{breakDownData?.srNo}}</td>
+                                <td>{{breakDownData?.vehicleNo}}</td>
+                                <td>{{breakDownData?.invoiceNo}}</td>
+                                <td>{{breakDownData?.quantity}}</td>
+                                <td>{{breakDownData?.plotName}}</td>
+                                <td>{{breakDownData?.destination}}</td>
+                                <td>{{breakDownData?.validityFrom}}</td>
+                                <td>{{breakDownData?.validityUpto}}</td>
+                                <td>{{breakDownData?.breakdownDatetime}}</td>
+                                <td>
+                                    <ng-container *ngIf="breakDownData?.restartDatetime != ''">
+                                        {{breakDownData?.restartDatetime}}</ng-container>
+                                    <ng-container *ngIf="breakDownData?.restartDatetime == ''"> - </ng-container>
+
+                                </td>
+                            </tr>
+                            <tr *ngIf="resBreakdownReport == null">
+                                <td colspan="10" class="text-danger text-center">No Breakdown Data</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- breakdown modal  -->
+<div class="modal fade" id="eTPDetailsModal">
+    <div class="modal-dialog modal-dialog-centered  modal-lg" style="max-width: 85% !important;">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h6 class="modal-title">eTP details </h6>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Sr No.</th>
+                                <th>eTP</th>
+                                <th>Vehicle</th>
+                                <th>Driver</th>
+                                <th>Quantity</th>
+                                <th>Validity from</th>
+                                <th>Validity to</th>
+                                <th>Source</th>
+                                <th>Destination</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let eTPDetailsData of resInvoiceDetails">
+                                <td>{{eTPDetailsData?.rownumber}}</td>
+                                <td>{{eTPDetailsData?.invoiceNo}}</td>
+                                <td>{{eTPDetailsData?.vehicle}}</td>
+                                <td>{{eTPDetailsData?.driverName | titlecase}}</td>
+                                <td>{{eTPDetailsData?.quantity}}</td>
+
+                                <td>{{eTPDetailsData?.validityFrom}}</td>
+                                <td>{{eTPDetailsData?.validityUpto}}</td>
+                                <td>{{eTPDetailsData?.plotName}}</td>
+                                <td>{{eTPDetailsData?.destination}}</td>
+                            </tr>
+                            <tr *ngIf="resInvoiceDetails == null">
+                                <td colspan="9" class="text-danger text-center">No eTP Details</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,154 @@
+<!-- <div class="container-fluid">
+  <div class="row mt-5">
+    <div class="col-sm-4 mx-auto">
+      <div class="card card-body" id="payment-box">
+        <div id="printInvoice">
+          <div class="pay-head" *ngIf="paymentData?.status == 'success'">
+            <i class="fas fa-check-circle fa-4x"></i>
+            <h4>Payment Successful</h4>
+            <h2 class="d-none1">Text</h2>
+          </div>
+          <div class="pay-head error" *ngIf="paymentData?.status == 'failure'">
+            <i class="fas fa-exclamation-circle fa-4x"></i>
+            <h4>Payment Failure</h4>
+          </div>
+          <ul class="list-group">
+
+            <li class="py-3 list-group-item d-flex justify-content-between align-items-center font-weight-bold">
+              Transaction ID
+              <span>{{paymentData?.mihpayid}}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              Payment Type
+              <span>{{paymentData?.PG_TYPE}}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              Payment Date
+              <span>{{paymentData?.addedon | date :'dd-MMM-yy h:mm a'}}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              Mobile
+              <span>{{paymentData?.phone}}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              Email ID
+              <span>{{paymentData?.email}}</span>
+            </li>
+            <li class="py-3 list-group-item d-flex justify-content-between align-items-center font-weight-bold">
+              Amount Paid
+              <span>{{paymentData?.amount | currency:'INR'}}</span>
+            </li>
+
+          </ul>
+        </div>
+        <div class="form-group text-center">
+          <button class="btn btn-main" type="button" (click)="downLoadPayReceipt()">Print</button>
+          <button class="btn btn-main" type="button" (click)="redirectRecharge()">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> -->
+
+
+<div class="container my-5">
+    <div class="row">
+        <div class="col-7 mx-auto">
+            <div class="card mb-5">
+                <div class="card-body p-0">
+                    <div id="printInvoice" #ticket>
+                        <div class="row p-4">
+                            <div class="col-md-6">
+                                <img src="http://shauryatechnosoft.com/img/logo2.png" width="150px">
+                                <!-- <h3>Invoice</h3> -->
+                            </div>
+
+                            <div class="col-md-6 text-right">
+                                <p class="font-weight-bold mb-1">Transaction Id : {{paymentData?.txnid}}</p>
+                                <p class="text-muted">Payment Date: {{paymentData?.addedon | date:'dd-MM-yyyy hh:mm a'}}</p>
+                            </div>
+                        </div>
+
+                        <hr class="my-1">
+
+                        <div class="row pb-5 p-5">
+                            <div class="col-md-6">
+                                <p class="font-weight-bold mb-4">Client Information</p>
+                                <p class="mb-1"><span class="text-muted">Name: </span> {{paymentData?.firstname}}</p>
+                                <p class="mb-1"><span class="text-muted">Mobile No: </span> {{paymentData?.phone}}</p>
+                                <p class="mb-1"><span class="text-muted">Email: </span> {{paymentData?.email}}</p>
+                                <p class="mb-1"><span class="text-muted">GST No.: </span> {{paymentData?.GSTNo ? paymentData?.GSTNo : 'NA'}}</p>
+                            </div>
+
+                            <div class="col-md-6 text-right">
+                                <p class="font-weight-bold mb-4">Payment Details</p>
+                                <p class="mb-1"><span class="text-muted">Payment Status: </span> <span class="text-success" style="font-size: 16px;">{{paymentData?.status | titlecase}}</span></p>
+                                <p class="mb-1"><span class="text-muted">Payu Money Id  : </span> {{paymentData?.payuMoneyId}}</p>
+                                <p class="mb-1"><span class="text-muted">Payment Type: </span> {{paymentData?.PG_TYPE}}</p>
+                                <p class="mb-1"><span class="text-muted">Bank Ref No.: </span> {{paymentData?.bank_ref_num}}</p>
+
+                            </div>
+                        </div>
+
+                        <div class="row p-4">
+                            <div class="col-md-12">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th class="border-0 text-uppercase small font-weight-bold">Sr No.</th>
+                                            <th class="border-0 text-uppercase small font-weight-bold">Vehicle No</th>
+                                            <th class="border-0 text-uppercase small font-weight-bold">Basic Amount</th>
+                                            <th class="border-0 text-uppercase small font-weight-bold">GST ({{paymentData.GSTPer}}%)</th>
+                                            <th class="border-0 text-uppercase small font-weight-bold">Transaction  cost ({{paymentData.transactionPer}}%)</th>
+                                            <th class="border-0 text-uppercase small font-weight-bold">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let vechile of veckInfoArray; let i = index">
+                                            <td>{{i + 1}}</td>
+                                            <td>{{vechile.vehicleNo}}</td>
+                                            <td>{{vechile.basicAmount }}</td>
+                                            <td>{{vechile.GST }}</td>
+                                            <td>{{vechile.transactionCost }}</td>
+                                            <td>{{vechile.amount }}</td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot class="border-bottom bg-light">
+                                        <tr>
+                                            <td colspan="5" class="text-right" style="font-size: 16px;">Total amount</td>
+                                            <td>
+                                                <h6 class="mb-0 pt-1">{{ paymentData?.amount}}</h6>
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- <div class="d-flex flex-row-reverse bg-dark text-white p-4">
+                            <div class="py-3 px-5 text-right">
+                          <div class="mb-2">Grand Total</div>
+                          <div class="h2 font-weight-light">$234,234</div>
+                      </div>
+
+                      <div class="py-3 px-5 text-right">
+                          <div class="mb-2">Discount</div>
+                          <div class="h2 font-weight-light">10%</div>
+                      </div> -->
+
+                        <!-- <div class="py-3 px-5 text-right">
+                                <div class="mb-2">Total amount</div>
+                                <div class="h2 font-weight-light"> {{ paymentData?.amount | currency:'INR'}}</div>
+                            </div>
+                        </div> -->
+                    </div>
+                </div>
+                <div class="form-group text-center">
+                    <button class="btn btn-outline-success btn-sm mr-2" type="button" (click)="downLoadPayReceipt()">Print</button>
+                    <button class="btn btn-outline-secondary btn-sm" type="button" (click)="redirectRecharge()">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

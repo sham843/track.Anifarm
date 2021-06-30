@@ -1,0 +1,175 @@
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-2 col-sm-3 p-0">
+            <div class="left-form-container">
+                <form [formGroup]="paymentHistoryFrom" (ngSubmit)="onSubmit()">
+                    <!-- <input  placeholder="Date Time"> -->
+                    <owl-date-time #dt1></owl-date-time>
+                    <div class="form-group">
+                        <label class="form-label" for="txtFromDate">From Date <span class="text-danger">*</span></label>
+                        <div class='input-group date'>
+                            <input [owlDateTime]="dt1" [owlDateTimeTrigger]="dt1" class="form-control input-group-addon"
+                                formControlName="fromDate" placeholder="From Date" [max]="maxDateOut" />
+                            <owl-date-time #dt1></owl-date-time>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="txtToDate">To Date <span class="text-danger">*</span></label>
+                        <div class='input-group date'>
+                            <input [owlDateTime]="dt2" [owlDateTimeTrigger]="dt2" class="form-control input-group-addon"
+                                formControlName="toDate" placeholder="From Date" [max]="maxDateOut" />
+                            <owl-date-time #dt2></owl-date-time>
+
+                        </div>
+
+                    </div>
+                    <button type="submit" class="btn btn-sm btn-outline-success mr-2">Search</button>
+                    <button type="button" (click)="clearForm()"
+                        class="btn btn-sm btn-outline-secondary">Refresh</button>
+                </form>
+            </div>
+        </div>
+        <div class="col-lg-10 col-sm-9 border-left">
+            <div *ngIf="hideReport">
+                <div class="report-header">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <h6 class="my-2 font-weight-bold"><img src="assets/img/dumper.svg" class="mr-2">Payment History
+                                <small class="ml-3">[{{date | date:'dd-MM-yyyy hh:mm:ss a'}}]</small>
+                            </h6>
+
+                        </div>
+                        <div class="col-sm-6 text-right">
+                            <div class="dropdown">
+                                <button class="btn btn-light dropdown-toggle btn-sm" type="button"
+                                    id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
+                                    aria-expanded="false">
+                                    Download
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
+                                    <a class="dropdown-item text-primary" (click)="downLoadExcel()">
+                                        <i class="fas fa-file-excel mr-2" data-toggle="tooltip"
+                                            title="Download Excel"></i>
+                                        Excel</a>
+                                    <a class="dropdown-item text-success" (click)="downLoadPDF()"><i
+                                            class="fas fa-file-pdf mr-2" data-toggle="tooltip" title="Download Pdf"></i>
+                                        PDF</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="report-content" id="pdfDownload">
+                    <div class="card card-body shadow-none border">
+                        <div class="row mb-3">
+                            <div class="col-sm-6">
+                                <!-- Payment: <span class="font-weight-bold">{{paymentHistoryData}}
+                                  <small>({{paymentHistoryData}})</small></span> -->
+                            </div>
+                            <div class="col-sm-6 text-right">
+                                Date: <span class="font-weight-bold">{{paymentHistoryData?.fromDate | date:'dd-MM-yyyy
+                                    hh:mm a'}} to {{paymentHistoryData?.toDate | date:'dd-MM-yyyy hh:mm a'}}</span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <table class="table table-bordered">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th>Sr No.</th>
+                                            <th>Transaction Id</th>
+                                            <th>Name</th>
+                                            <th>No. of Vehicles</th>
+                                            <th>Vechicle Nos</th>
+                                            <th>Payment Date</th>
+                                            <th>Amount</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr
+                                            *ngFor="let paymentData of paymentDataReport | paginate: { itemsPerPage: pageSize, currentPage: p, totalItems:count }; let i = index">
+                                            <td>{{(+(p-1+"0")+i+1)}}</td>
+                                            <td>{{paymentData.transactionId == '' ? "NA" : paymentData.transactionId}}
+                                            </td>
+                                            <td>{{paymentData.firstName == null ? "NA" : paymentData.firstName}}</td>
+                                            <td>{{paymentData.noOfVehicle}}</td>
+                                            <!-- <td>{{paymentData.vehicleIds}}</td> -->
+                                            <td>{{paymentData.vehicleRegistrationNo}}</td>
+                                            <td>{{paymentData.paymentDate}}</td>
+                                            <td>{{paymentData.amount | currency: 'INR'}}</td>
+                                            <!-- <td [ngClass]="paymentData.status == 'success' ? 'text-success' : 'text-danger'">{{paymentData.status == '' ? "NA" : paymentData.status | titlecase}}</td> -->
+                                            <td class="last-child"
+                                                [ngClass]="{'text-success':paymentData.status == 'success', 'text-warning': paymentData.status == 'pending', 'text-danger':paymentData.status == 'failed', 'text-danger1':paymentData.status ==  'failure'}">
+                                                <!-- {{paymentData.status == '' ? "NA" : paymentData.status | titlecase}} -->
+                                                <ng-container
+                                                    *ngIf="paymentData.status == 'failed' || paymentData.status == 'failure'">
+                                                    Failed</ng-container>
+                                                <ng-container
+                                                    *ngIf="paymentData.status != 'failed' &&  paymentData.status != 'failure'">
+                                                    {{paymentData.status == '' ? "NA" : paymentData.status | titlecase}}
+                                                </ng-container>
+                                                <ng-container *ngIf="paymentData.status == 'pending'"><button
+                                                        type="button" data-toggle="modal"
+                                                        data-target="#checkPaymentStatusModal" (click)="checkPaymentStayus(paymentData)"
+                                                        class="btn btn-outline-warning btn-new btn-sm ml-1 mr-1"><i
+                                                            class="fas fa-undo" aria-hidden="true"></i></button>
+                                                </ng-container>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <div class="text-right">
+                                    <pagination-controls (pageChange)="p = $event" (click)="pagination(p)"
+                                        previousLabel="" nextLabel=""></pagination-controls>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<!-- Modal checkPaymentStatusModal -->
+<div class="modal fade" id="checkPaymentStatusModal" tabindex="-1" role="dialog" aria-labelledby="checkPaymentStatus"
+    aria-hidden="true">
+    <div class="modal-dialog  modal-dialog-centered modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title" id="checkPaymentStatus">Payment Status</h6>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <ng-container *ngIf="!paymentStatus">
+                    <i class="fas fa-question-circle fa-4x" style="color: #ff850c;"></i>
+                    <p class="mt-4 mb-0"> Transaction Id : <span>{{selectedTxnId}}</span></p>
+                    <h6 class="mt-1">Payment Status : <span class="text-warning">Pending</span></h6>
+                </ng-container>
+
+                <ng-container *ngIf="paymentStatus">
+                    <ng-container *ngIf="paymentStatus == 'pending'"><i class="fas fa-question-circle fa-4x" style="color: #ff850c;"></i></ng-container>
+                    <ng-container *ngIf="paymentStatus == 'success'"><i class="far fa-check-circle fa-4x text-success"></i></ng-container>
+                    <ng-container *ngIf="(paymentStatus == 'failed') ||  (paymentStatus == 'failure')"><i class="far fa-times-circle fa-4x text-danger"></i></ng-container>
+                    <p class="mt-4 mb-0"> Transaction Id : {{txnid}}</p>
+                    <h6 class="mt-1"> Payment Status : <span [ngClass]="{'text-success':paymentStatus == 'success', 'text-warning': paymentStatus == 'pending', 'text-danger':paymentStatus == 'failed', 'text-danger1':paymentStatus ==  'failure'}">{{paymentStatus | titlecase}}</span></h6>
+                </ng-container>
+            </div>
+            <div class="text-center mb-3">
+                <button type="button" class="btn btn-outline-secondary btn-sm mr-1" style="width: 100px;"
+                    data-dismiss="modal">Close</button>
+                <!-- <button type="button" class="btn btn-outline-danger btn-sm  ml-1" style="width: 100px;"  data-dismiss="modal">Yes</button> -->
+            </div>
+        </div>
+    </div>
+</div>

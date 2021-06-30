@@ -1,0 +1,337 @@
+<!-- <p>tracking works!</p> -->
+
+<agm-map id="googlemaps" [latitude]='lat' [longitude]='long' [zoom]="zoom" (mapReady)="onMapReady($event)" [mapTypeId]="this.viewType">
+
+    <!-- <agm-polyline *ngFor="let point of locationDTArray;let i = index;"  [strokeColor]="point.Scolor">
+        <agm-polyline-point [latitude]="point.latitude" [longitude]="point.longitude">
+        </agm-polyline-point>
+      
+    </agm-polyline> -->
+
+    <ng-container *ngIf="hideMapInfo">
+        <agm-marker [latitude]='lat' [longitude]='long'>
+            <agm-info-window [isOpen]="hideMapInfo" (infoWindowClose)="close($event)">
+                <table class="table table-bordered table-sm mb-0">
+                    <tbody>
+                        <tr>
+                            <td>Sr No. :</td>
+                            <th>{{mapeInfoSn}}</th>
+                        </tr>
+                        <tr>
+                            <td>Speed :</td>
+                            <th>{{mapeInfospeed}} Km/h</th>
+                        </tr>
+                        <tr>
+                            <td>Address :</td>
+                            <ng-container><i class="fa fa-spinner fa-spin" *ngIf="loading"></i></ng-container>
+                            <th style="max-width:250px;">{{getAddressByVec}}</th>
+                        </tr>
+                    </tbody>
+                </table>
+            </agm-info-window>
+        </agm-marker>
+    </ng-container>
+</agm-map>
+
+
+
+
+<!-- <div id="googlemaps"></div> -->
+
+<div class="page-wrapper toggled" [class.toggled]="showSidebar">
+    <a id="show-sidebar" class="btn btn-sm btn-dark" (click)="showSidebar=true">
+        <i class="fas fa-bars"></i>
+    </a>
+
+    <nav id="sidebar" class="sidebar-wrapper">
+        <div class="sidebar-content">
+            <div class="sidebar-brand">
+                <!-- <div id="close-sidebar">
+                    <a (click)="toggleClass('sidebar')">
+                        <i class="fas fa-arrow-left"></i>
+                    </a>
+                </div> -->
+                <a id="close-sidebar" (click)="showSidebar=false"><i class="fas fa-arrow-left"></i></a>
+            </div>
+            <form [formGroup]="filterForm" class="vehicle-form">
+                <div class="form-group">
+                    <label for="ddlVehicleNo" class="form-label">Vehicle No. <span class="text-danger">*</span></label>
+                    <!-- <select id="ddlVehicleNo" class="form-control" formControlName="Vehicle" [ngClass]="{ 'is-invalid': submitted && f.Vehicle.errors }">
+                        <option value="" disabled>Select Vehicle No.</option>
+                        <option *ngFor="let dt of VehicleDtArr" onchange="" [ngValue]="dt.vehicleNo|uppercase">
+                            {{dt.vehicleNo|uppercase }}
+                        </option>
+                    </select> -->
+                    <ngx-select [items]="VehicleDtArr" optionValueField="vehicleNo" placeholder="Search Vehicle" optionValueField="vehicleNo" formControlName="Vehicle" [ngClass]="{ 'is-invalid': submitted && f.Vehicle.errors }"></ngx-select>
+                    <div *ngIf="submitted && f.Vehicle.errors" class="invalid-feedback">
+                        <div *ngIf="f.Vehicle.errors.required">Vehicle Number is required</div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="ddlVehicleNo" class="form-label">From Date</label>
+                    <input [owlDateTime]="dt1" [owlDateTimeTrigger]="dt1" class="form-control input-group-addon" formControlName="fromdate" placeholder="From Date" [max]="maxDateOut" />
+                    <owl-date-time #dt1></owl-date-time>
+                    <!-- <input type="datetime-local" class="form-control" formControlName="fromdate" [value]="fromDate()"  [max]="fromDate1()"  placeholder="From Date"> -->
+                </div>
+                <div class="form-group">
+                    <label for="ddlVehicleNo" class="form-label">To Date </label>
+                    <input [owlDateTime]="dt2" [owlDateTimeTrigger]="dt2" class="form-control input-group-addon" formControlName="todate" placeholder="To Date" [max]="maxDateOut" />
+                    <owl-date-time #dt2></owl-date-time>
+                    <!-- <input type="datetime-local" [min]="this.filterForm.value.fromdate" [max]="toDate()" formControlName="todate" class="form-control" placeholder="To Date"> -->
+                </div>
+                <button type="submit" (click)="FnClear();BindData()" class="btn btn-outline-success mr-2 w100px">Search</button>
+                <button type="button" (click)="FnClickRefresh()" class="btn btn-outline-secondary w100px">Refresh</button>
+            </form>
+
+            <ng-container *ngIf="VehiclesDetails">
+                <div class="vehicle-details">
+                    <table class="table table-hover table-sm">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>LC. <span class="float-right"></span>
+                                </th>
+                                <th>Date<span class="float-right"></span>
+                                </th>
+                                <th>Speed (Km/h) <span class="float-right"></span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let dt of directions;  let i = index" (click)="mapeInfoBox(i)" [class.active]="i == trActive">
+                                <td>{{i+1}}</td>
+                                <td>{{dt.date | date:'dd-MM-yyyy hh:mm a'}}</td>
+                                <td>{{dt.speed}}</td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+            </ng-container>
+        </div>
+    </nav>
+</div>
+
+
+
+
+
+
+<!-- <div class="vehicle-play mr-t-3-5rm">
+    <button class="btn btn-light" type="button" data-toggle="collapse" data-target="#cardvehicle-play"
+        aria-expanded="false" aria-controls="cardvehicle-play">
+        <i class="fas fa-bars"></i>
+    </button>
+</div> -->
+<div class="vehicle-play-content" *ngIf="hideCardvehicle">
+    <div class="" id="cardvehicle-play">
+        <div class="card card-body">
+            <div class="row">
+                <div class="col-sm-auto">
+                    <div class="btn-group" role="group">
+                        <button type="button" [disabled]="btnDisPro" [title]="playPauseFlag?'Pause':'Play'" (click)="playPauseFlag=!playPauseFlag; playPause()" [class.active]="activeButton !==3" class="btn btn-light"><i [ngClass]="playPauseFlag?'fas fa-pause':'fas fa-play'"></i></button>
+                        <!-- <button type="button" [disabled]="btnDisPro" title="Pause Tracking" (click)="pause()" [class.active]="activeButton === 2" class="btn btn-light"><i class="fas fa-pause"></i></button> -->
+                        <button type="button" [disabled]="btnDisPro" title="Refresh Tracking " (click)="reset()" [class.active]="activeButton === 3" class="btn btn-light"><i class="fas fa-redo"></i></button>
+
+                    </div>
+                </div>
+                <div class="col-sm">
+                    <div class="slidecontainer">
+                        <div class="d-flex justify-content-between">
+                            <div>Speed</div>
+                            <div>{{speedChange}}</div>
+                        </div>
+                        <span id="rngSpeedValue" class="float-right"></span>
+                        <input type="range" min="1" max="100" (change)="onChangeSpeed($event)" [value]="speedChange" class="slider bg-success" id="rngSpeed">
+                    </div>
+                </div>
+                <!-- <div class="col-sm">
+                    <div class="slidProgress">
+                        <div class="w-100">Progress {{stepLocationArray}} %</div>
+
+                        <input type="range" name="rangeInput" step="1" (input)="setRangeValue($event)" [value]="rangevalue" min="0" max="{{locationArray.length}}" autocomplete="off" class="w-100 mt-1" />
+                        <span>{{rangeDate | date:'dd-MM-yyyy hh:mm a'}}</span>
+                      step="{{stepLocationArray}}" [value]="rangevalue"
+                        <output></output>
+                    </div>
+                </div> -->
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="markers">
+    <!-- <button class="btn btn-light" type="button" [ngClass]="crosshairs ? 'active' : ''" (click)="toggleClass('crosshairs')" data-toggle="collapse" data-target="#cardPosition" aria-expanded="false" aria-controls="cardPosition">
+        <i class="fas fa-crosshairs"></i>
+    </button> -->
+    <button class="btn btn-light" type="button" [ngClass]="cardMap ? 'active' : ''" (click)="toggleClass('cardMap')" data-toggle="collapse" data-target="#cardMapType" aria-expanded="false" aria-controls="cardMapType">
+        <i class="far fa-images"></i>
+    </button>
+    <button class="btn btn-light" [ngClass]="trafficLignClass ? 'active' : ''" type="button" (click)="onSetTraffic()">
+        <i class="fas fa-traffic-light"></i>
+    </button>
+    <button class="btn btn-light" *ngIf="isSpeedlineChartbtn" type="button" data-toggle="modal" [ngClass]="chart ? 'active' : ''" (click)="toggleClass('chart')" data-target="#SpeedDistanceTimeChart">
+        <i class="fas fa-chart-line"></i>
+    </button>
+</div>
+<div class="marker-content">
+    <div class="collapse multi-collapse" id="cardPosition">
+        <div class="card card-body">
+            <div class="custom-control custom-radio custom-control-inline">
+                <input type="radio" id="rblCenter" name="rblMarker" class="custom-control-input">
+                <label class="custom-control-label" for="rblCenter">Center</label>
+            </div>
+            <div class="custom-control custom-radio custom-control-inline">
+                <input type="radio" id="rblFit" name="rblMarker" class="custom-control-input">
+                <label class="custom-control-label" for="rblFit">Fit</label>
+            </div>
+            <div class="custom-control custom-radio custom-control-inline">
+                <input type="radio" id="rblMove" name="rblMarker" class="custom-control-input">
+                <label class="custom-control-label" for="rblMove">Move</label>
+            </div>
+        </div>
+    </div>
+    <div class="collapse multi-collapse" id="cardMapType">
+        <div class="card card-body">
+            <div class="custom-control custom-radio custom-control-inline">
+                <input type="radio" id="rblRoadmap" (click)="this.viewType= 'roadmap'" name="rblMapType" checked class="custom-control-input">
+                <label class="custom-control-label" for="rblRoadmap">Roadmap</label>
+            </div>
+            <div class="custom-control custom-radio custom-control-inline">
+                <input type="radio" id="rblHybrid" (click)="this.viewType= 'hybrid'" name="rblMapType" class="custom-control-input">
+                <label class="custom-control-label" for="rblHybrid">Hybrid</label>
+            </div>
+            <div class="custom-control custom-radio custom-control-inline">
+                <input type="radio" id="rblSatelite" (click)="this.viewType= 'satellite'" name="rblMapType" class="custom-control-input">
+                <label class="custom-control-label" for="rblSatelite">Satelite</label>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- <div class="btnInvoiceDetails">
+    <button type="button" class="btn btn-light" data-toggle="modal" data-target="#mdlInvoiceDetails">
+        eTP Details <span class="main-color">({{InvoiceData.length}})</span>
+    </button>
+</div> -->
+
+
+
+<div class="modal fade" id="SpeedDistanceTimeChart" tabindex="-1" aria-labelledby="SpeedDistanceTimeChartLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title" id="SpeedDistanceTimeChartLabel">
+                    Speed, Distance vs Time Chart
+                </h6>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="linechartdiv"></div>
+                <!-- <div id="linechartdiv"></div> -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal left fade" id="mdlInvoiceDetails" tabindex="" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title">eTP Details <span class="main-color">({{InvoiceData.length}})</span></h6>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="accordion " id="accordion">
+                    <ng-container *ngIf="InvoiceData.length == ''"><span class="text-danger text-center">No eTP Details</span> </ng-container>
+                    <div class="accordion__item" *ngFor="let dt of InvoiceData;let i = index">
+
+                        <div class="accordion__title" id="heading{{i}}" data-toggle="collapse" [attr.data-target]="'#collapse'+i" aria-expanded="true" [attr.aria-controls]="'collapse'+i">
+                            {{dt.invoiceNo}}</div>
+                        <!-- <h5 class="mb-0" data-toggle="collapse" [attr.data-target]="'#collapse'+i"
+                            aria-expanded="true" [attr.aria-controls]="'collapse'+i">
+                                <button class="btn btn-link">
+                                    {{dt.invoiceNo}}
+                                </button>
+                            </h5> -->
+
+
+                        <div id="collapse{{i}}" class="collapse accordion__body" [attr.aria-labelledby]="'heading'+i" data-parent="#accordion">
+                            <div class="accordion__content">
+                                <div class="form-row">
+                                    <div class="col-sm-4 pl-0">
+                                        <label class="form-label">Distance</label>
+                                        <label class="form-data">{{dt.distance}} Km</label>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <label class="form-label">Quantity</label>
+                                        <label class="form-data">{{dt.quantity}} {{dt.materialUnit}}</label>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <label class="form-label">Material</label>
+                                        <label class="form-data">{{dt.material}}</label>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-label">Plot Name</label>
+                                    <label class="form-data">{{dt.plotName}}</label>
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-label">Destination</label>
+                                    <label class="form-data">{{dt.destination|uppercase}}</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- <div class="accordion__item" *ngFor="let dt of InvoiceData;let i = index" id="accordionExample"+i>
+                        <div class="accordion__title" id="accordionExample"+i>{{dt.invoiceNo}}</div>
+                        <div class="accordion__body">
+                            <div class="accordion__content">
+                                <div class="form-row">
+                                    <label class="form-label">pl Validity</label>
+                                    <label class="form-data">{{dt.validityFrom}} - {{dt.validityUpto}}</label>
+                                </div>
+                                <div class="form-row">
+                                    <div class="col-sm-4 pl-0">
+                                        <label class="form-label">Distance</label>
+                                        <label class="form-data">{{dt.distance}} Km</label>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <label class="form-label">Quantity</label>
+                                        <label class="form-data">{{dt.quantity}} {{dt.materialUnit}}</label>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <label class="form-label">Material</label>
+                                        <label class="form-data">{{dt.material}}</label>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-label">Plot Name</label>
+                                    <label class="form-data">{{dt.plotName}}</label>
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-label">Destination</label>
+                                    <label class="form-data">{{dt.destination|uppercase}}</label>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div> -->
+
+
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal"><i
+                        class="fas fa-arrow-right"></i></button>
+            </div>
+        </div>
+    </div>
+</div>

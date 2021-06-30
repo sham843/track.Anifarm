@@ -1,0 +1,508 @@
+<agm-map id="googlemaps" [latitude]='lat' [zoom]="zoom" [longitude]='long' (mapReady)="onMapReady($event)" [mapTypeId]="this.viewType">
+    <agm-marker-cluster *ngIf="!isSinglemarker" imagePath="https://raw.githubusercontent.com/googlemaps/v3-utility-library/master/markerclustererplus/images/m">
+
+
+        <agm-marker *ngFor="let dt of VehicleMarkerArr let i=index" id="dt?.vehicleNo" agm-marker [latitude]="dt?.latitude" (markerClick)="FN_mapVehicleClick(dt,i)" [longitude]="dt?.longitude" [iconUrl]="dt?.vehicleTypeImage" [title]="dt?.vehicleNo">
+            <!-- [label]="dt?.vehicleNo" -->
+        </agm-marker>
+
+    </agm-marker-cluster>
+
+    <agm-marker *ngIf="isSinglemarker" id="singleimage" [latitude]="latitude" [longitude]="longitude" [iconUrl]="Sel_vehicleTypeImage" [title]="sel_Vehicle">
+        <!-- [label]="dt?.vehicleNo" -->
+    </agm-marker>
+
+</agm-map>
+
+
+<div class="page-wrapper" [class.toggled]="showSidebar">
+    <div id="show-sidebar" class="btn btn-sm btn-dark" (click)="showSidebar=true">
+        <i class="fas fa-bars"></i>
+    </div>
+    <nav id="sidebar" class="sidebar-wrapper">
+        <div class="sidebar-content">
+            <div class="sidebar-brand">
+                <div class="btn-group d-flex" role="group" aria-label="Basic example">
+                    <button type="button" data-toggle="modal" data-target="#stopwatchModel" title="set time interval" class="btn btn-light w-100"><i class="fas fa-stopwatch"></i></button>
+                    <button type="button" class="btn btn-warning w-100">{{intrvaltime}}</button>
+                    <button type="button" class="btn btn-light w-100" (click)="playPause()"><i [ngClass]="[isPlay?'fas fa-pause':'fas fa-play']"></i></button>
+                    <button type="button" class="btn btn-light w-100" (click)=" fnResetCounter('select')"><i class="fas fa-sync"></i></button>
+                    <button type="button" id="close-sidebar" (click)="showSidebar=false" class="btn btn-light w-100"><i
+                                class="fas fa-arrow-left"></i></button>
+                </div>
+            </div>
+            <div class="map-details">
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend" style="background: #f8f9fa !important">
+                        <span class="input-group-text bg-transparent">Status</span>
+                    </div>
+                    <select class="form-control" [value]='checkStatus' (change)="onChange($event)">
+                            <option value="select" selected>All</option>
+                            <option value="Running">Running</option>
+                            <option value="Offline">Offline</option>
+                            <option value="Stopped">Stopped</option>
+                        </select>
+                </div>
+                <ng-container><i class="fa fa-spinner fa-spin" *ngIf="loading"></i></ng-container>
+                <ul class="list-unstyled" *ngIf="!loading">
+                    <li class="media" *ngFor="let dt of VehicleDtArr  let i = index" (click)="FN_mapVehicleClick(dt,i)" [class.active]="i == liActive">
+                        <img src="assets/img/VTSicons/{{dt.vehicleTypeImage}}.png" onerror="this.src='assets/img/VTSicons/BargeN.png';" class="mr-3 border-right pr-2" alt='{{dt.vehicleNo}}'>
+                        <div class="media-body">
+                            <h6 class="mt-0 mb-1 font-weight-bold">{{dt.vehicleNo|uppercase}}</h6>
+                            <p>{{dt.driverName | titlecase}} {{dt.driverMobileNo}}</p>
+                        </div>
+                    </li>
+                    <div class="alert alert-danger text-center" *ngIf="VehicleDtArr.length==0" role="alert">
+                        No Data Found..!
+                    </div>
+
+                </ul>
+            </div>
+        </div>
+    </nav>
+</div>
+<!-- --------------------------------------stopwatch dialog ----------------------------------->
+<!-- The Modal -->
+<div class="modal" id="stopwatchModel">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h6 class="modal-title">Set Time Interval</h6>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body">
+                <p>
+                    Enter interval time in seconds(minimum 10 seconds).
+                </p>
+                <!-- <input type="number" min=10 minlength="1" length="2" onKeyPress="if(this.value.length==2) return false;" maxlength="2" class="form-control" [(ngModel)]='intrvaltimeOnchange' placeholder="Enetr time interval"> -->
+                <input type="number" min=10 minlength="1" length="2" maxlength="2" class="form-control" [(ngModel)]='intrvaltimeOnchange' placeholder="Enetr time interval">
+                <!-- <p *ngIf="intrvaltimeOn.invalid && (intrvaltimeOn.dirty || intrvaltimeOn.touched)" class="text-danger">
+                Please Enetr minimum 10 seconds.
+            </p> -->
+
+                <p class="mt-2 mb-0">
+                    Note<span class="text-danger">*</span>: This setting works for current session only.
+                </p>
+            </div>
+
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary btn-sm mr-1" id="closetimerModel" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-outline-danger btn-sm ml-1" (click)="Settimeintrval($event)">Set</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+<div class="markers">
+    <!-- <button class="btn btn-light" type="button" data-toggle="collapse" [ngClass]="crosshairs ? 'active' : ''"
+        (click)="toggleClass('crosshairs')" data-target="#cardPosition" aria-expanded="false"
+        aria-controls="cardPosition">
+        <i class="fas fa-crosshairs"></i>
+    </button> -->
+    <button class="btn btn-light" type="button" [ngClass]="cardMap ? 'active' : ''" (click)="toggleClass('cardMap')" data-toggle="collapse" data-target="#cardMapType" aria-expanded="false" aria-controls="cardMapType">
+        <i class="far fa-images"></i>
+    </button>
+    <button class="btn btn-light" [ngClass]="trafficLignClass ? 'active' : ''" (click)="toggleClass('chart')" type="button" (click)="onSetTraffic()">
+        <i class="fas fa-traffic-light"></i>
+    </button>
+</div>
+<div class="marker-content">
+    <div class="collapse multi-collapse" id="cardPosition">
+        <div class="card card-body">
+            <div class="custom-control custom-radio custom-control-inline">
+                <input type="radio" id="rblCenter" name="rblMarker" class="custom-control-input">
+                <label class="custom-control-label" for="rblCenter">Center</label>
+            </div>
+            <div class="custom-control custom-radio custom-control-inline">
+                <input type="radio" id="rblFit" name="rblMarker" class="custom-control-input">
+                <label class="custom-control-label" for="rblFit">Fit</label>
+            </div>
+            <div class="custom-control custom-radio custom-control-inline">
+                <input type="radio" id="rblMove" name="rblMarker" class="custom-control-input">
+                <label class="custom-control-label" for="rblMove">Move</label>
+            </div>
+        </div>
+    </div>
+    <div class="collapse multi-collapse" id="cardMapType">
+        <div class="card card-body">
+            <div class="custom-control custom-radio custom-control-inline">
+                <input type="radio" id="rblRoadmap" name="rblMapType" (click)="this.viewType= 'roadmap'" checked class="custom-control-input">
+                <label class="custom-control-label" for="rblRoadmap">Roadmap</label>
+            </div>
+            <div class="custom-control custom-radio custom-control-inline">
+                <input type="radio" id="rblHybrid" name="rblMapType" (click)="this.viewType= 'hybrid'" class="custom-control-input">
+                <label class="custom-control-label" for="rblHybrid">Hybrid</label>
+            </div>
+            <div class="custom-control custom-radio custom-control-inline mr-0">
+                <input type="radio" id="rblSatelite" name="rblMapType" (click)="this.viewType= 'satellite'" class="custom-control-input">
+                <label class="custom-control-label" for="rblSatelite">Satelite</label>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-container *ngIf="defaultHide">
+    <div class="btnInvoiceDetails mr-5">
+        <div class="btn-group shadow-sm">
+            <button #vehicleInformation class="btn btn-warning" type="button" data-toggle="collapse" data-target="#cardVehiclePosition" aria-expanded="false" aria-controls="cardPosition">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+            <button type="button" class="btn btn-light px-3" data-toggle="modal" data-target="#mdlInvoiceDetails">
+            <i class="fas fa-info"></i>
+        </button>
+        </div>
+    </div>
+    <!-- Vehicle Information  devicedate& fuiel& speed -->
+    <div class="marker-content">
+        <div class="collapse multi-collapse" id="cardVehiclePosition">
+            <div class="card card-body bg-warning">
+                <div class="row">
+                    <div class="col-sm-auto border-right">
+                        <i class="fas fa-clock mr-2"></i>{{deviceDateTime|date:'dd/MM/yyyy h:mm a'}}
+                    </div>
+                    <div class="col-sm-auto border-right">
+                        <i class="fas fa-gas-pump mr-2"></i> {{isFuelApplicable?fuelInLiter +' Liter':'Not applicable'}}
+                    </div>
+                    <div class="col-sm-auto">
+                        <i class="fas fa-tachometer-alt mr-2"></i> {{Speed}} Km/h
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-container>
+
+<!-- iformation  model -->
+<div class="modal left fade" id="mdlInvoiceDetails" tabindex="" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title">{{sel_Vehicle}}<br> <small class="text-secondary">{{VehiclecurrentLocation}}</small></h6>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <ul class="nav nav-tabs nav-justified myVehicleTab" id="myVehicleTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true"><i class="fas fa-home"></i></a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" id="invoice-tab" data-toggle="tab" href="#invoice" role="tab" aria-controls="invoice" aria-selected="false"><i class="fas fa-file-invoice"></i></a>
+                    </li>
+                    <!-- <li class="nav-item" role="presentation">
+                        <a class="nav-link" id="pin-tab" data-toggle="tab" href="#pin" role="tab" aria-controls="pin"
+                            aria-selected="false"><i class="fas fa-map-pin"></i></a>
+                    </li> -->
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" id="cog-tab" data-toggle="tab" href="#cog" role="tab" aria-controls="cog" aria-selected="false"><i class="fas fa-cog"></i></a>
+                    </li>
+                </ul>
+                <div class="tab-content myVehicleTabContent" id="myVehicleTabContent">
+                    <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                        <div class="map-details p-0">
+                            <ul class="list-unstyled">
+                                <li class="media">
+                                    <div class="media-icon">
+                                        <i class="fas fa-clock fa-2x"></i>
+                                    </div>
+                                    <div class="media-body">
+                                        <p>Date time</p>
+                                        <h6 class="mt-0 mb-1 font-weight-bold">{{deviceDateTime|date:'dd/MM/yyyy h:mm a'}}</h6>
+                                    </div>
+                                </li>
+                                <li class="media">
+                                    <div class="media-icon">
+                                        <i class="fas fa-user-alt fa-2x"></i>
+                                    </div>
+                                    <div class="media-body">
+                                        <p>Driver Name & Mobile No.</p>
+                                        <h6 class="mt-0 mb-1 font-weight-bold">{{User}}</h6>
+                                    </div>
+                                </li>
+                                <li class="media">
+                                    <div class="media-icon">
+                                        <i class="fas fa-gas-pump fa-2x"></i>
+                                    </div>
+                                    <div class="media-body">
+                                        <p>Fuel</p>
+                                        <h6 class="mt-0 mb-1 font-weight-bold">{{isFuelApplicable?fuelInLiter +' Liter':'Not applicable'}}</h6>
+                                    </div>
+                                </li>
+                                <li class="media">
+                                    <div class="media-icon">
+                                        <i class="fas fa-tachometer-alt fa-2x"></i>
+                                    </div>
+                                    <div class="media-body">
+                                        <p>Speed</p>
+                                        <h6 class="mt-0 mb-1 font-weight-bold">{{Speed}} Km/h</h6>
+                                    </div>
+                                </li>
+                                <!-- <li class="media">
+                                    <div class="media-icon">
+                                        <i class="fas fa-weight fa-2x"></i>
+                                    </div>
+                                    <div class="media-body">
+                                        <p>Capacity</p>
+                                        <h6 class="mt-0 mb-1 font-weight-bold">{{capacity}} Brass</h6>
+                                    </div>
+                                </li> -->
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="invoice" role="tabpanel" aria-labelledby="invoice-tab">
+                        <ul class="nav nav-tabs nav-justified myVehicleTab" id="myVehicleTab1" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <a class="nav-link active" id="SummaryReport-tab" data-toggle="tab" href="#SummaryReport" role="tab" aria-controls="SummaryReport" aria-selected="true"><i class="fas fa-file-contract"></i></a>
+                            </li>
+                            <!-- <li class="nav-item" role="presentation">
+                                <a class="nav-link" id="AddressReport-tab" data-toggle="tab" href="#AddressReport"
+                                    role="tab" aria-controls="AddressReport" aria-selected="false"><i
+                                        class="fas fa-route"></i></a>
+                            </li> -->
+                        </ul>
+                        <div class="tab-content myVehicleTabContent" id="myVehicleTabContent1">
+                            <div class="tab-pane fade show active" id="SummaryReport" role="tabpanel" aria-labelledby="SummaryReport-tab">
+                                <div class="map-details p-0">
+                                    <ul class="list-unstyled">
+                                        <li class="media">
+                                            <div class="media-icon">
+                                                <i class="fas fa-running fa-2x"></i>
+                                            </div>
+                                            <div class="media-body">
+                                                <p>Running Time</p>
+                                                <h6 class="mt-0 mb-1 font-weight-bold">{{RunningTime * 1000 * 60| date:'HH:mm':'UTC'}} HH:mm</h6>
+                                            </div>
+                                        </li>
+                                        <li class="media">
+                                            <div class="media-icon">
+                                                <i class="fas fa-male fa-2x"></i>
+                                            </div>
+                                            <div class="media-body">
+                                                <p>Stoppage Time</p>
+                                                <h6 class="mt-0 mb-1 font-weight-bold">{{StopageTime * 1000 * 60| date:'HH:mm':'UTC'}} HH:mm</h6>
+                                            </div>
+                                        </li>
+                                        <li class="media">
+                                            <div class="media-icon">
+                                                <i class="fas fa-stopwatch fa-2x"></i>
+                                            </div>
+                                            <div class="media-body">
+                                                <p>Idle time</p>
+                                                <h6 class="mt-0 mb-1 font-weight-bold">{{IdleTime * 1000 * 60| date:'HH:mm':'UTC'}} HH:mm</h6>
+                                            </div>
+                                        </li>
+                                        <li class="media">
+                                            <div class="media-icon">
+                                                <i class="fas fa-tachometer-alt fa-2x"></i>
+                                            </div>
+                                            <div class="media-body">
+                                                <p>Max speed</p>
+                                                <h6 class="mt-0 mb-1 font-weight-bold">{{MaxSpeed}} Km/h</h6>
+                                            </div>
+                                        </li>
+                                        <li class="media">
+                                            <div class="media-icon">
+                                                <i class="fas fa-clock fa-2x"></i>
+                                            </div>
+                                            <div class="media-body">
+                                                <p>Travelled distance</p>
+                                                <h6 class="mt-0 mb-1 font-weight-bold">{{TravelledDistance}} Km</h6>
+                                            </div>
+                                        </li>
+                                        <li class="media">
+                                            <div class="media-icon">
+                                                <i class="fas fa-map-marker-alt fa-2x text-success"></i>
+                                            </div>
+                                            <div class="media-body">
+                                                <p>Start Address</p>
+                                                <h6 class="mt-0 mb-1 font-weight-bold">{{StartAddress}}</h6>
+                                            </div>
+                                        </li>
+                                        <li class="media">
+                                            <div class="media-icon">
+                                                <i class="fas fa-map-marker-alt fa-2x text-danger"></i>
+                                            </div>
+                                            <div class="media-body">
+                                                <p>End Address</p>
+                                                <h6 class="mt-0 mb-1 font-weight-bold">{{EndAddress}}</h6>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="AddressReport" role="tabpanel" aria-labelledby="AddressReport-tab">
+                                <div class="accordion" id="accordionExample">
+                                    <div class="card mb-3">
+                                        <div class="card-header" id="headingOne">
+                                            <div class="float-left">
+                                                <div><i class="fas fa-map-marker-alt text-success"></i> Geocoder failed due </div>
+                                                <div><i class="fas fa-map-marker-alt text-danger"></i> Geocoder failed due
+                                                </div>
+                                            </div>
+                                            <div class="float-right">
+                                                <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                                    <i class="fas fa-arrow-down"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample">
+                                            <ul class="list-group list-group-flush">
+                                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                    20.86466, 78.89187
+                                                    <a href="#"><i class="fas fa-location-arrow text-dark"></i></a>
+                                                </li>
+                                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                    20.86528, 78.89383
+                                                    <a href="#"><i class="fas fa-location-arrow text-primary"></i></a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="card mb-3">
+                                        <div class="card-header" id="headingTwo">
+                                            <div class="float-left">
+                                                <div><i class="fas fa-map-marker-alt text-success"></i> Geocoder failed due </div>
+                                                <div><i class="fas fa-map-marker-alt text-danger"></i> Geocoder failed due
+                                                </div>
+                                            </div>
+                                            <div class="float-right">
+                                                <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+                                                    <i class="fas fa-arrow-down"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
+                                            <ul class="list-group list-group-flush">
+                                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                    20.86466, 78.89187
+                                                    <a href="#"><i class="fas fa-location-arrow text-dark"></i></a>
+                                                </li>
+                                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                    20.86528, 78.89383
+                                                    <a href="#"><i class="fas fa-location-arrow text-primary"></i></a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="pin" role="tabpanel" aria-labelledby="pin-tab">
+                        <table class="table table-bordered table-hover">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Sr No.</th>
+                                    <th>Title</th>
+                                    <th>Address</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>Katraj Chowk</td>
+                                    <td>Maharashtra 412301, India</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="tab-pane fade half-table" id="cog" role="tabpanel" aria-labelledby="cog-tab">
+                        <form [formGroup]="mapForm" (ngSubmit)="onSubmit()">
+                            <div class="form-group">
+                                <label for="ddlSelect" class="form-label">Make <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" formControlName="vehicleMake" [ngClass]="{ 'is-invalid': submitted && f.vehicleMake.errors }">
+                                <div *ngIf="submitted && f.vehicleMake.errors" class="invalid-feedback invalid-feedback1">
+                                    <div *ngIf="f.vehicleMake.errors.required">Vehicle Make is required</div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="txtModel" class="form-label">Model <span class="text-danger">*</span></label>
+                                <input class="form-control" id="txtModel" formControlName="vehicleModels" placeholder="Model" [ngClass]="{ 'is-invalid': submitted && f.vehicleModels.errors }">
+                                <div *ngIf="submitted && f.vehicleModels.errors" class="invalid-feedback invalid-feedback1">
+                                    <div *ngIf="f.vehicleModels.errors.required">Vehicle Model is required</div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="txtEngineCapacity" class="form-label">Engine Capacity (Ltr)<span
+                                    class="text-danger">*</span></label>
+                                <input class="form-control" id="txtEngineCapacity" maxlength="6" formControlName="vehicleEngineCapacity" placeholder="Engine Capacity (Ltr)" [ngClass]="{ 'is-invalid': submitted && f.vehicleEngineCapacity.errors }">
+                                <div *ngIf="submitted && f.vehicleEngineCapacity.errors" class="invalid-feedback invalid-feedback1">
+                                    <div *ngIf="f.vehicleEngineCapacity.errors.required">Engine Capacity is required</div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="txtDeviceID" class="form-label">Device ID<span
+                                    class="text-danger">*</span></label>
+                                <input class="form-control" id="txtDeviceID" title="Device Id" [attr.disabled]="true" placeholder="Device ID" formControlName="deviceId" [ngClass]="{ 'is-invalid': submitted && f.deviceId.errors }">
+                                <div *ngIf="submitted && f.deviceId.errors" class="invalid-feedback">
+                                    <div *ngIf="f.deviceId.errors.required">Device Id is required</div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="txtSimNo" class="form-label">SIM No<span class="text-danger" >*</span></label>
+                                <input class="form-control" id="txtSimNo" placeholder="SIM No" [attr.disabled]="true" title="Sim No" formControlName="deviceSIMNo" [ngClass]="{ 'is-invalid': submitted && f.deviceSIMNo.errors }">
+                                <div *ngIf="submitted && f.deviceSIMNo.errors" class="invalid-feedback">
+                                    <div *ngIf="f.deviceSIMNo.errors.required">Device SIM No is required</div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label w-100">Fuel type<span class="text-danger">*</span></label>
+                                <ng-container *ngFor="let fuels of fuelType">
+                                    <input type="radio" [value]="fuels.fuelTypeId" formControlName="fuelTypeId" class="mr-2" [ngClass]="{ 'is-invalid': submitted && f.fuelTypeId.errors }">{{fuels.fuelType}}
+                                </ng-container>
+                                <div *ngIf="submitted && f.fuelTypeId.errors" class="invalid-feedback invalid-feedback1">
+                                    <div *ngIf="f.fuelTypeId.errors.validfuelTypeId">Fuel Type is required</div>
+                                </div>
+
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label w-100">Vehicle Type<span class="text-danger">*</span></label>
+                                <ng-container class="mt-2 " *ngFor="let Vehicle of VehicleType">
+                                    <input type="radio" [value]="Vehicle.vehicleTypeId" class="mr-2" formControlName="vehicleTypeId" [ngClass]="{ 'is-invalid': submitted && f.vehicleTypeId.errors }">{{Vehicle.vehTypeName}}
+                                    <div *ngIf="submitted && f.vehicleTypeId.errors" class="invalid-feedback">
+                                        <div *ngIf="f.vehicleTypeId.errors.required">Vehicle Type Nameis required</div>
+                                    </div>
+                                </ng-container>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label w-100">Over speed limit : <span id="spnCounter">{{speedRange}} km/h</span>
+                                <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <!-- <div class="input-group-prepend">
+                                    <button type="button" class="btn btn-secondary btn-sm px-2"><i
+                                            class="fas fa-minus"></i></button>
+                                </div> -->
+                                    <input type="range" class="form-control-range w-75" id="formControlRange" min="0" [value]="speedRange" max="180" (input)="vechSpeed($event)" formControlName="speed" [ngClass]="{ 'is-invalid': submitted && f.speed.errors }">
+                                    <div *ngIf="submitted && f.speed.errors" class="invalid-feedback">
+                                        <div *ngIf="f.speed.errors.required">Speed is required</div>
+                                    </div>
+                                    <!-- <div class="input-group-append">
+                                    <button type="button" class="btn btn-secondary btn-sm px-2"><i
+                                            class="fas fa-plus"></i></button>
+                                </div> -->
+                                </div>
+                                <small class="form-text text-muted">
+                                <span class="badge badge-secondary">Note : </span>
+                                Over speed limit should be greather than 20 Km/h</small>
+                            </div>
+                            <button type="submit" class="btn btn-outline-success btn-sm">Update</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

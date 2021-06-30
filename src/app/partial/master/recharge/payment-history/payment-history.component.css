@@ -1,0 +1,11 @@
+.ellipsis{
+    white-space: nowrap;
+    width: 50px;
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.text-danger1 {
+    color: #dc3545!important;
+}

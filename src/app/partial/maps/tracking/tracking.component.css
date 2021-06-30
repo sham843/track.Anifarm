@@ -1,0 +1,17 @@
+/* agm-map {
+    height: 80vh;
+} */
+
+.table-hover tbody tr.active {
+    color: #212529;
+    background-color: rgba(0, 0, 0, .075);
+}
+
+
+#sidebar .vehicle-details .table td:first-child{
+	width: 8%;
+}
+
+#sidebar .vehicle-details .table td:nth-child(2) {
+    width: 55%;
+}

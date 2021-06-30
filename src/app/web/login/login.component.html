@@ -1,0 +1,118 @@
+<section class="login_o">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4 col-md-6" style="display: flex; flex-direction: column; justify-content:space-around; height: calc(100vh - 101px);">
+                <div class="login_form">
+                    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" mouseenter>
+                        <h5 class="mb-3">Login</h5>
+                        <div class="form-group">
+                            <input type="text" autocomplete="off" class="form-control" placeholder="User Name" formControlName="username" [ngClass]="{ 'is-invalid': submitted && f.username.errors }">
+                            <div *ngIf="submitted && f.username.errors" class="invalid-feedback">
+                                <div *ngIf="f.username.errors.required">User Name is required</div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <input autocomplete="off" [type]="show_button ? 'text' : 'password'" class="form-control" placeholder="Password" formControlName="password" [ngClass]="{ 'is-invalid': submitted && f.password.errors }">
+                            <i class="eye-icon-pos" [class]="show_eye ? 'fa fa-eye' : 'fa fa-eye-slash'" (click)="showPassword()"> </i>
+                            <div *ngIf="submitted && f.password.errors" class="invalid-feedback">
+                                <div *ngIf="f.password.errors.required">Password is required</div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <!-- <div class="input-group">
+                                <input type="text" class="form-control" placeholder="Enter Captcha" formControlName="recaptchaReactive" [ngClass]="{ 'is-invalid': submitted && f.recaptchaReactive.errors }">
+                                <div class="input-group-append">
+                                    <div id="captcha"></div>
+                                    <button class="btn btn-light sync rounded-0" type="button" (click)="reCaptcha()"><i class="fa fa-sync"></i></button>
+                                </div>
+                               
+                            </div> -->
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="form-group mb-1">
+                                        <input type="text" class="form-control" placeholder="Enter Captcha" formControlName="recaptchaReactive" [ngClass]="{ 'is-invalid': submitted && f.recaptchaReactive.errors }">
+                                        <button class="btn btn-light sync rounded-0 btn-sm" type="button" (click)="reCaptcha()"><i class="fa fa-sync"></i></button>
+                                        <div *ngIf="submitted && f.recaptchaReactive.errors" class="invalid-feedback">
+                                            <div *ngIf="f.recaptchaReactive.errors.required">Captcha is required</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div id="captcha"></div>
+                                </div>
+                            </div>
+                            <!-- <span class="badge badge-danger sync" (click)="reCaptcha()"> <i class="fa fa-sync"></i></span> -->
+
+                        </div>
+                        <!-- <input type="text" placeholder="" formControlName="recaptchaReactive">
+                        <div id="captcha"></div>
+                        <span class="badge badge-danger sync" (click)="reCaptcha()"> <i class="fa fa-sync"></i></span> -->
+
+                        <div class="login_btn">
+                            <button type="submit" class="btn login">Login</button>
+                        </div>
+                        <button type="button" class="btn btn-link w-100 text-right d-block" (click)="GeneratePassword('true')">Generate
+                            Password</button>
+                    </form>
+                </div>
+                <div *ngIf="genPass" class="gen-pass">
+                    <div class="row">
+                        <div class="col-sm-8">
+                            <strong>{{getText}}</strong>
+                        </div>
+                        <div class="col-sm-4 text-right">
+                            <span *ngIf="hideBeforeSendSms" class="mr-4">
+                                <a (click)="getBack()"><i class="fas fa-arrow-left"></i></a>
+                            </span>
+                            <a (click)="GeneratePassword('false')">
+                                <i class="far fa-times-circle"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="mt-3 w-100">
+                        <form [formGroup]="genPasswordForm" (ngSubmit)="onSubmitGP()">
+
+                            <div class="col-sm-12 p-0">
+                                <div *ngIf="hideAfterSendSms">
+                                    <input type="text" class="form-control" formControlName="MobileNo" placeholder="Mobile Number" [ngClass]="{ 'is-invalid': submittedGP && GP.MobileNo.errors }">
+                                    <div *ngIf="submittedGP && GP.MobileNo.errors" class="invalid-feedback">
+                                        <div *ngIf="GP.MobileNo.errors.required">Mobile No. is compulsory.</div>
+                                        <div *ngIf="GP.MobileNo.errors.minlength">Mobile No. min length is 10</div>
+                                        <div *ngIf="GP.MobileNo.errors.maxlength">Mobile No. max length is 10</div>
+                                        <div *ngIf="GP.MobileNo.errors.pattern">Please enter numbers only</div>
+                                    </div>
+                                </div>
+                                <div *ngIf="hideBeforeSendSms">
+                                    <input type="text" class="form-control" formControlName="OTP" id="OTP" placeholder="OTP Number" [ngClass]="{ 'is-invalid': submittedGP && GP.OTP.errors }">
+                                    <div *ngIf="!genPasswordForm.get('OTP').valid" class="invalid-feedback">
+                                        <div *ngIf="genPasswordForm.get('OTP').errors.required">OTP is required</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 text-center" style="margin-top: 30px;">
+                                <button class="btn btn-sm btn-success">{{btnText}}</button>
+                                <ng-container *ngIf="btnText != 'submit'">
+                                    - OR - <button type="button" class="btn btn-sm btn-success" (click)="LoginOtp()">Login OTP</button>
+                                </ng-container>
+
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="login_detail">
+                    <h6>The best app to increase your productivity </h6>
+                    <p>A mobile app is a computer program designed to run on a mobile device such as a phone/tablet.
+                    </p>
+                    <!-- <div class="app_o">
+                        <a href="https://apps.apple.com/in/app/mahatrack/id1460457229" target="_blank" class="appstore_a"><img src="assets/img/Appstore.svg"></a>
+                        <a href="https://play.google.com/store/apps/details?id=mahaminingtrack.com" target="_blank"><img src="assets/img/Playstore.svg"></a>
+                    </div> -->
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!--<div class="footerBg">
+    <div class="truckCMain d-none d-md-block d-lg-block"><object class="scale-fill-heightTCM" type="image/svg+xml" data="img/homePage/truckCM.svg"></object> </div>
+    <div class="tractorCraneMain d-none d-md-block d-lg-block"><object class="scale-fill-heightTC" type="image/svg+xml" data="img/homePage/tractorCrane.svg"></object> </div>
+</div>-->
